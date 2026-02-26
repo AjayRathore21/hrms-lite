@@ -24,7 +24,7 @@ import {
 import { useAttendanceStore } from "../store/useAttendanceStore";
 import { useEmployeeStore } from "../store/useEmployeeStore";
 import AppLayout from "../layouts/AppLayout";
-import type { Attendance, AttendanceStatus } from "../types";
+import type { AttendanceStatus, AttendanceRecord } from "../types";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import dayjs from "dayjs";
@@ -80,7 +80,7 @@ const AttendancePage: React.FC = () => {
       title: "Employee",
       dataIndex: "employeeName",
       key: "employeeName",
-      render: (name: string, record: Attendance) => (
+      render: (name: string, record: AttendanceRecord) => (
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div
             style={{
@@ -199,7 +199,7 @@ const AttendancePage: React.FC = () => {
                   showSearch
                   optionFilterProp="label"
                   options={employees.map((e) => ({
-                    label: `${e.name} (${e.id})`,
+                    label: `${e.fullName} (${e.employeeId})`,
                     value: e.id,
                   }))}
                 />

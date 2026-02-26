@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import type { Attendance, NewAttendance } from "../types";
+import type { NewAttendance, AttendanceRecord } from "../types";
 import { attendanceService } from "../services/api";
 
 interface AttendanceState {
-  attendanceRecords: Attendance[];
+  attendanceRecords: AttendanceRecord[];
   loading: boolean;
   error: string | null;
   todayStats: { present: number; absent: number } | null;
@@ -32,11 +32,10 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
   addAttendance: async (data: NewAttendance) => {
     set({ loading: true, error: null });
     try {
-      const newRecord = await attendanceService.add(data);
-      set((state) => ({
-        attendanceRecords: [...state.attendanceRecords, newRecord],
-        loading: false,
-      }));
+      await attendanceService.add(data);
+      // Re-fetch all because we need the joined employee details for the new record
+      const updatedData = await attendanceService.getAll();
+      set({ attendanceRecords: updatedData, loading: false });
     } catch (err) {
       set({ error: (err as Error).message, loading: false });
       throw err;

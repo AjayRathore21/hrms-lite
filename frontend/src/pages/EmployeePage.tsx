@@ -55,9 +55,9 @@ const EmployeePage: React.FC = () => {
 
   const filtered = employees.filter((e) => {
     const matchSearch =
-      e.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      e.fullName.toLowerCase().includes(searchText.toLowerCase()) ||
       e.email.toLowerCase().includes(searchText.toLowerCase()) ||
-      e.id.toLowerCase().includes(searchText.toLowerCase());
+      e.employeeId.toLowerCase().includes(searchText.toLowerCase());
     const matchDept = selectedDept ? e.department === selectedDept : true;
     return matchSearch && matchDept;
   });
@@ -67,7 +67,7 @@ const EmployeePage: React.FC = () => {
       const values = await form.validateFields();
       setSubmitting(true);
       await addEmployee(values as NewEmployee);
-      toast.success(`Employee "${values.name}" added successfully!`);
+      toast.success(`Employee "${values.fullName}" added successfully!`);
       form.resetFields();
       setModalOpen(false);
     } catch (err: unknown) {
@@ -90,8 +90,8 @@ const EmployeePage: React.FC = () => {
   const columns = [
     {
       title: "Employee ID",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "employeeId",
+      key: "employeeId",
       width: 120,
       render: (id: string) => (
         <Tag style={{ borderRadius: 6, fontSize: 12, fontFamily: "monospace" }}>
@@ -100,9 +100,9 @@ const EmployeePage: React.FC = () => {
       ),
     },
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Full Name",
+      dataIndex: "fullName",
+      key: "fullName",
       render: (name: string, record: Employee) => (
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div
@@ -143,27 +143,10 @@ const EmployeePage: React.FC = () => {
       ),
     },
     {
-      title: "Position",
-      dataIndex: "position",
-      key: "position",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <Tag
-          color={status === "Active" ? "success" : "default"}
-          style={{ borderRadius: 20, padding: "2px 12px", fontWeight: 600 }}
-        >
-          {status}
-        </Tag>
-      ),
-    },
-    {
-      title: "Join Date",
-      dataIndex: "joinDate",
-      key: "joinDate",
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
       title: "Action",
@@ -172,8 +155,8 @@ const EmployeePage: React.FC = () => {
       render: (_: unknown, record: Employee) => (
         <Popconfirm
           title="Delete Employee"
-          description={`Are you sure you want to remove "${record.name}"?`}
-          onConfirm={() => handleDelete(record.id, record.name)}
+          description={`Are you sure you want to remove "${record.fullName}"?`}
+          onConfirm={() => handleDelete(record.id, record.fullName)}
           okText="Delete"
           cancelText="Cancel"
           okButtonProps={{ danger: true }}
@@ -370,12 +353,15 @@ const EmployeePage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 label="Employee ID"
-                name="id"
+                name="employeeId"
                 rules={[
                   { required: true, message: "Employee ID is required" },
                   {
                     validator: (_, value) => {
-                      if (value && employees.find((e) => e.id === value)) {
+                      if (
+                        value &&
+                        employees.find((e) => e.employeeId === value)
+                      ) {
                         return Promise.reject(
                           "This Employee ID already exists",
                         );
@@ -391,7 +377,7 @@ const EmployeePage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 label="Full Name"
-                name="name"
+                name="fullName"
                 rules={[{ required: true, message: "Full name is required" }]}
               >
                 <Input
@@ -416,37 +402,14 @@ const EmployeePage: React.FC = () => {
             />
           </Form.Item>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                label="Department"
-                name="department"
-                rules={[{ required: true, message: "Department is required" }]}
-              >
-                <Select
-                  placeholder="Select department"
-                  options={DEPARTMENTS.map((d) => ({ label: d, value: d }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Position"
-                name="position"
-                rules={[{ required: true, message: "Position is required" }]}
-              >
-                <Input
-                  placeholder="e.g. Software Engineer"
-                  style={{ borderRadius: 8 }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item label="Phone Number" name="phone">
-            <Input
-              placeholder="e.g. +1 (555) 123-4567"
-              style={{ borderRadius: 8 }}
+          <Form.Item
+            label="Department"
+            name="department"
+            rules={[{ required: true, message: "Department is required" }]}
+          >
+            <Select
+              placeholder="Select department"
+              options={DEPARTMENTS.map((d) => ({ label: d, value: d }))}
             />
           </Form.Item>
         </Form>

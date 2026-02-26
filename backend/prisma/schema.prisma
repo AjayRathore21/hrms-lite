@@ -4,29 +4,28 @@ datasource db {
 }
 
 generator client {
-  provider             = "prisma-client-py"
-  recursive_type_depth = 5
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  role      String   @default("employee")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  provider = "prisma-client-py"
 }
 
 model Employee {
-  id             String   @id @default(uuid())
-  firstName      String
-  lastName       String
-  email          String   @unique
-  phone          String?
-  department     String?
-  designation    String?
-  joiningDate    DateTime @default(now())
-  status         String   @default("active")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id          String       @id @default(uuid())
+  employeeId  String       @unique
+  fullName    String
+  email       String       @unique
+  department  String
+  attendances Attendance[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Attendance {
+  id         String   @id @default(uuid())
+  date       DateTime @default(now())
+  status     String   // "Present" or "Absent"
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([employeeId, date])
 }

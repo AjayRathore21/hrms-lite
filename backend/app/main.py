@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.prisma import db
+from app.api.v1.api import api_router
 
 def get_application() -> FastAPI:
     _app = FastAPI(
@@ -24,6 +25,8 @@ def get_application() -> FastAPI:
     @_app.on_event("shutdown")
     async def shutdown():
         await db.disconnect()
+
+    _app.include_router(api_router, prefix="/api/v1")
 
     @_app.get("/health")
     async def health_check():

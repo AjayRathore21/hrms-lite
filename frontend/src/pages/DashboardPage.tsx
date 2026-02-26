@@ -18,7 +18,7 @@ import { useEmployeeStore } from "../store/useEmployeeStore";
 import { useAttendanceStore } from "../store/useAttendanceStore";
 import AppLayout from "../layouts/AppLayout";
 import { format } from "date-fns";
-import type { Attendance } from "../types";
+import type { AttendanceRecord } from "../types";
 
 const { Text } = Typography;
 
@@ -75,7 +75,7 @@ const DashboardPage: React.FC = () => {
       title: "Employee",
       dataIndex: "employeeName",
       key: "employeeName",
-      render: (name: string, record: Attendance) => (
+      render: (name: string, record: AttendanceRecord) => (
         <div>
           <Text strong>{name}</Text>
           <br />
