@@ -7,20 +7,22 @@ import {
   DatePicker,
   Form,
   Tag,
-  Skeleton,
   Typography,
   Row,
   Col,
   Alert,
   Empty,
   Space,
+  Avatar,
 } from "antd";
 import {
   PlusOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
+
 import { useAttendanceStore } from "../store/useAttendanceStore";
 import { useEmployeeStore } from "../store/useEmployeeStore";
 import AppLayout from "../layouts/AppLayout";
@@ -29,7 +31,7 @@ import toast from "react-hot-toast";
 import { format } from "date-fns";
 import dayjs from "dayjs";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 const AttendancePage: React.FC = () => {
   const { attendanceRecords, loading, error, fetchAttendance, addAttendance } =
@@ -45,8 +47,7 @@ const AttendancePage: React.FC = () => {
   useEffect(() => {
     fetchAttendance();
     fetchEmployees();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchAttendance, fetchEmployees]);
 
   const handleSubmit = async () => {
     try {
@@ -81,28 +82,24 @@ const AttendancePage: React.FC = () => {
       dataIndex: "employeeName",
       key: "employeeName",
       render: (name: string, record: AttendanceRecord) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Avatar
+            size={36}
             style={{
-              width: 34,
-              height: 34,
-              borderRadius: 9,
-              background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
+              background: "var(--avatar-bg)",
               fontWeight: 700,
-              fontSize: 13,
-              flexShrink: 0,
+              fontSize: 14,
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             }}
           >
             {name.charAt(0)}
-          </div>
+          </Avatar>
           <div>
-            <Text strong>{name}</Text>
+            <Text strong style={{ color: "var(--text-primary)" }}>
+              {name}
+            </Text>
             <br />
-            <Text type="secondary" style={{ fontSize: 12 }}>
+            <Text style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               {record.department}
             </Text>
           </div>
@@ -114,7 +111,14 @@ const AttendancePage: React.FC = () => {
       dataIndex: "date",
       key: "date",
       render: (date: string) => (
-        <Text>{format(new Date(date + "T00:00:00"), "MMM dd, yyyy")}</Text>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <CalendarOutlined
+            style={{ color: "var(--text-secondary)", fontSize: 13 }}
+          />
+          <Text style={{ color: "var(--text-primary)", fontSize: 13 }}>
+            {format(new Date(date + "T00:00:00"), "MMMM dd, yyyy")}
+          </Text>
+        </div>
       ),
     },
     {
@@ -133,9 +137,12 @@ const AttendancePage: React.FC = () => {
           color={status === "Present" ? "success" : "error"}
           style={{
             borderRadius: 20,
-            padding: "3px 14px",
-            fontWeight: 600,
-            fontSize: 13,
+            padding: "4px 16px",
+            fontWeight: 700,
+            fontSize: 12,
+            border: "none",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
           }}
         >
           {status}
@@ -146,56 +153,56 @@ const AttendancePage: React.FC = () => {
 
   return (
     <AppLayout pageTitle="Attendance">
+      <div className="page-header" style={{ marginBottom: 32 }}>
+        <Title level={2} style={{ margin: 0, fontWeight: 800 }}>
+          Attendance Tracking
+        </Title>
+        <Text type="secondary">
+          Monitor and record employee daily presence logs.
+        </Text>
+      </div>
+
       {error && (
         <Alert
           type="error"
           message={error}
           showIcon
-          style={{ marginBottom: 20, borderRadius: 10 }}
+          style={{ marginBottom: 24, borderRadius: 12 }}
         />
       )}
 
-      <Row gutter={[20, 20]}>
-        {/* Mark Attendance Form */}
-        <Col xs={24} lg={8}>
+      <Row gutter={[24, 24]}>
+        <Col xs={24} xl={8}>
           <Card
+            className="card"
             title={
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 8,
-                    background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <CalendarOutlined style={{ color: "#fff", fontSize: 15 }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div className="icon-badge primary">
+                  <CalendarOutlined />
                 </div>
-                <Text strong style={{ fontSize: 15 }}>
-                  Mark Attendance
+                <Text strong style={{ fontSize: 16 }}>
+                  Check-in Registry
                 </Text>
               </div>
             }
-            style={{
-              borderRadius: 16,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-              position: "sticky",
-              top: 80,
-            }}
+            style={{ position: "sticky", top: 100 }}
           >
-            <Form form={form} layout="vertical" onFinish={handleSubmit}>
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+              className="form premium-form"
+            >
               <Form.Item
-                label="Employee"
+                label="Select Employee"
                 name="employeeId"
                 rules={[
                   { required: true, message: "Please select an employee" },
                 ]}
               >
                 <Select
-                  placeholder="Select employee"
+                  size="large"
+                  placeholder="Search by name or ID"
                   showSearch
                   optionFilterProp="label"
                   options={employees.map((e) => ({
@@ -206,16 +213,17 @@ const AttendancePage: React.FC = () => {
               </Form.Item>
 
               <Form.Item
-                label="Date"
+                label="Work Date"
                 name="date"
                 rules={[{ required: true, message: "Please select a date" }]}
+                initialValue={dayjs()}
               >
                 <DatePicker
-                  style={{ width: "100%", borderRadius: 8 }}
+                  size="large"
+                  style={{ width: "100%" }}
                   disabledDate={(current) =>
                     current && current > dayjs().endOf("day")
                   }
-                  format="YYYY-MM-DD"
                 />
               </Form.Item>
 
@@ -223,29 +231,27 @@ const AttendancePage: React.FC = () => {
                 label="Status"
                 name="status"
                 rules={[{ required: true, message: "Please select status" }]}
+                initialValue="Present"
               >
                 <Select
+                  size="large"
                   placeholder="Select status"
                   options={[
                     {
                       label: (
-                        <span>
-                          <CheckCircleOutlined
-                            style={{ color: "#16a34a", marginRight: 8 }}
-                          />
-                          Present
-                        </span>
+                        <Space>
+                          <CheckCircleOutlined style={{ color: "#10b981" }} />
+                          <span style={{ fontWeight: 600 }}>Present</span>
+                        </Space>
                       ),
                       value: "Present",
                     },
                     {
                       label: (
-                        <span>
-                          <CloseCircleOutlined
-                            style={{ color: "#dc2626", marginRight: 8 }}
-                          />
-                          Absent
-                        </span>
+                        <Space>
+                          <CloseCircleOutlined style={{ color: "#ef4444" }} />
+                          <span style={{ fontWeight: 600 }}>Absent</span>
+                        </Space>
                       ),
                       value: "Absent",
                     },
@@ -254,19 +260,14 @@ const AttendancePage: React.FC = () => {
               </Form.Item>
 
               <Button
+                size="large"
                 type="primary"
                 htmlType="submit"
                 loading={submitting}
                 block
                 icon={<PlusOutlined />}
-                style={{
-                  borderRadius: 8,
-                  height: 40,
-                  background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-                  border: "none",
-                  fontWeight: 600,
-                  marginTop: 4,
-                }}
+                className="btn btn--primary"
+                style={{ marginTop: 8 }}
               >
                 Submit Attendance
               </Button>
@@ -274,38 +275,40 @@ const AttendancePage: React.FC = () => {
           </Card>
         </Col>
 
-        {/* Attendance Records Table */}
-        <Col xs={24} lg={16}>
+        <Col xs={24} xl={16}>
           <Card
+            className="card card--main"
             title={
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  gap: 12,
+                  width: "100%",
                 }}
               >
-                <Text strong style={{ fontSize: 15 }}>
-                  Attendance Records
-                </Text>
-                <Space wrap>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div className="icon-badge secondary">
+                    <HistoryOutlined />
+                  </div>
+                  <Text strong style={{ fontSize: 16 }}>
+                    Attendance History
+                  </Text>
+                </div>
+                <Space>
                   <DatePicker
                     placeholder="Filter by date"
-                    format="YYYY-MM-DD"
                     onChange={(date) =>
                       setFilterDate(
                         date ? dayjs(date).format("YYYY-MM-DD") : null,
                       )
                     }
-                    style={{ borderRadius: 8 }}
-                    allowClear
+                    className="form-input"
                   />
                   <Select
-                    placeholder="All statuses"
+                    placeholder="All Status"
                     allowClear
-                    style={{ width: 140 }}
+                    style={{ width: 130 }}
                     onChange={(val) =>
                       setFilterStatus((val as AttendanceStatus) ?? null)
                     }
@@ -317,34 +320,28 @@ const AttendancePage: React.FC = () => {
                 </Space>
               </div>
             }
-            style={{
-              borderRadius: 16,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            }}
             styles={{ body: { padding: 0 } }}
           >
-            {loading ? (
-              <div style={{ padding: 24 }}>
-                <Skeleton active paragraph={{ rows: 6 }} />
-              </div>
-            ) : sorted.length === 0 ? (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="No attendance records found."
-                style={{ padding: "48px 0" }}
-              />
-            ) : (
+            <div className="table-container">
               <Table
                 dataSource={sorted}
                 columns={columns}
                 rowKey="id"
+                loading={loading}
                 pagination={{
                   pageSize: 8,
                   showSizeChanger: false,
-                  showTotal: (t) => `${t} records`,
+                  className: "custom-pagination",
                 }}
               />
-            )}
+              {!loading && sorted.length === 0 && (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description="No records found for this period."
+                  style={{ padding: "64px 0" }}
+                />
+              )}
+            </div>
           </Card>
         </Col>
       </Row>

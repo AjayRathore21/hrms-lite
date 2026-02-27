@@ -1,35 +1,36 @@
-import React, { useState } from "react";
-import { Layout, Menu, Typography, Badge, Avatar, Dropdown } from "antd";
+import React, { useState, useEffect } from "react";
+import { Layout, Avatar, Dropdown, Button } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  DashboardOutlined,
-  TeamOutlined,
-  CalendarOutlined,
-  UserOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
-import { format } from "date-fns";
+import { UserOutlined, SunOutlined, MoonOutlined } from "@ant-design/icons";
+import { motion, AnimatePresence } from "framer-motion";
+import { useThemeStore } from "../store/useThemeStore";
 
-const { Sider, Content, Header } = Layout;
-const { Text } = Typography;
+const { Header, Content } = Layout;
 
 const menuItems = [
-  { key: "/", icon: <DashboardOutlined />, label: "Dashboard" },
-  { key: "/employees", icon: <TeamOutlined />, label: "Employees" },
-  { key: "/attendance", icon: <CalendarOutlined />, label: "Attendance" },
+  { key: "/employees", label: "Employees" },
+  { key: "/attendance", label: "Attendance" },
+  { key: "/analytics", label: "Analytics" },
 ];
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  pageTitle: string;
+  pageTitle?: string;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children, pageTitle }) => {
-  const [collapsed, setCollapsed] = useState(false);
+const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, toggleTheme } = useThemeStore();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const adminMenu = {
     items: [
@@ -39,198 +40,73 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, pageTitle }) => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        trigger={null}
-        width={230}
-        style={{
-          background: "#0f172a",
-          boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
-          position: "fixed",
-          height: "100vh",
-          left: 0,
-          top: 0,
-          zIndex: 100,
-        }}
+    <Layout className="app-layout">
+      {/* ── Top Header ─────────────────────────────────────────────────── */}
+      <Header
+        className={`app-layout__header ${scrolled ? "app-layout__header--scrolled" : ""}`}
       >
         {/* Logo */}
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: collapsed ? "20px 16px" : "20px 24px",
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
-            marginBottom: 8,
-          }}
+          className="app-layout__logo"
+          onClick={() => navigate("/employees")}
         >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <TeamOutlined style={{ color: "#fff", fontSize: 18 }} />
-          </div>
-          {!collapsed && (
-            <div>
-              <div
-                style={{
-                  color: "#fff",
-                  fontWeight: 700,
-                  fontSize: 16,
-                  lineHeight: 1.2,
-                }}
-              >
-                HRMS Lite
-              </div>
-              <div style={{ color: "#94a3b8", fontSize: 11 }}>Admin Panel</div>
-            </div>
-          )}
+          HRMS<span>.</span>
         </div>
 
-        {/* Navigation */}
-        <Menu
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          onClick={({ key }) => navigate(key)}
-          items={menuItems}
-          style={{
-            background: "transparent",
-            border: "none",
-            padding: "0 8px",
-          }}
-          theme="dark"
-        />
-
-        {/* Collapse Trigger */}
-        <div
-          onClick={() => setCollapsed(!collapsed)}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "center",
-            cursor: "pointer",
-          }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: "rgba(255,255,255,0.08)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#94a3b8",
-              transition: "all 0.2s",
-            }}
-          >
-            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          </div>
-        </div>
-      </Sider>
-
-      {/* ── Main Content ─────────────────────────────────────────────────── */}
-      <Layout
-        style={{
-          marginLeft: collapsed ? 80 : 230,
-          transition: "margin-left 0.2s",
-        }}
-      >
-        {/* Top Header */}
-        <Header
-          style={{
-            background: "#fff",
-            padding: "0 28px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
-            position: "sticky",
-            top: 0,
-            zIndex: 99,
-            height: 64,
-          }}
-        >
-          <div>
-            <Text style={{ fontSize: 20, fontWeight: 700, color: "#0f172a" }}>
-              {pageTitle}
-            </Text>
-            <br />
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {format(new Date(), "EEEE, MMMM dd, yyyy")}
-            </Text>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Badge count={3} size="small">
+        {/* Centered Navigation */}
+        <nav className="app-layout__nav">
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.key;
+            return (
               <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 8,
-                  background: "#f1f5f9",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              ></div>
-            </Badge>
-
-            <Dropdown menu={adminMenu} trigger={["click"]}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  cursor: "pointer",
-                  padding: "6px 12px",
-                  borderRadius: 8,
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                }}
+                key={item.key}
+                className={`app-layout__nav-item ${isActive ? "app-layout__nav-item--active" : ""}`}
+                onClick={() => navigate(item.key)}
               >
-                <Avatar
-                  size={30}
-                  icon={<UserOutlined />}
-                  style={{
-                    background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-                  }}
-                />
-                <Text strong style={{ fontSize: 14 }}>
-                  Admin
-                </Text>
-                <DownOutlined style={{ fontSize: 10, color: "#94a3b8" }} />
+                {item.label}
               </div>
-            </Dropdown>
-          </div>
-        </Header>
+            );
+          })}
+        </nav>
 
-        {/* Page Content */}
-        <Content
-          style={{
-            background: "#f1f5f9",
-            padding: 28,
-            minHeight: "calc(100vh - 64px)",
-          }}
-        >
-          {children}
-        </Content>
-      </Layout>
+        {/* Actions */}
+        <div className="app-layout__actions">
+          <Button
+            type="text"
+            icon={theme === "light" ? <MoonOutlined /> : <SunOutlined />}
+            onClick={toggleTheme}
+            style={{ fontSize: "18px", color: "var(--text-primary)" }}
+          />
+          <Dropdown menu={adminMenu} trigger={["click"]}>
+            <Avatar
+              size={36}
+              icon={<UserOutlined />}
+              className="app-layout__avatar"
+              style={{
+                cursor: "pointer",
+                background: "var(--avatar-bg)",
+                border: "2px solid #fff",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              }}
+            />
+          </Dropdown>
+        </div>
+      </Header>
+
+      {/* ── Main Content with Transitions ───────────────────────────────── */}
+      <Content className="app-layout__content">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </Content>
     </Layout>
   );
 };

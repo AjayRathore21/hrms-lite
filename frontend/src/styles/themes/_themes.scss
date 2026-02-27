@@ -1,0 +1,37 @@
+@use "../abstracts/colors" as *;
+
+:root {
+    &[data-theme='light'] {
+        --bg-layout: #f8fafc; // Clean light slate gray background
+        --bg-card: #ffffff;
+        --bg-header: rgba(248, 250, 252, 0.8);
+        --text-primary: #0f172a; // Deeper blue-black
+        --text-secondary: #475569; // Slate-600 for better legibility
+        --border-color: #cbd5e1; // Visible slate-300 border
+        --pill-bg: #e2e8f0; // Distinct slate-200 pill
+        --pill-text: #64748b;
+        --pill-active-bg: #0f172a;
+        --pill-active-text: #ffffff;
+        --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        --avatar-bg: #0891b2;
+        --bg-input: #f1f5f9; // Distinct slate-100 input
+        --accent: #2563eb; // More vibrant blue
+    }
+
+    &[data-theme='dark'] {
+        --bg-layout: #020617; // Much deeper black-blue
+        --bg-card: #0f172a; // Distinct card color
+        --bg-header: rgba(2, 6, 23, 0.8);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #334155;
+        --pill-bg: #1e293b;
+        --pill-text: #94a3b8;
+        --pill-active-bg: #38bdf8; // Cyan highlight for dark mode
+        --pill-active-text: #020617;
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+        --avatar-bg: #0ea5e9;
+        --bg-input: #1e293b;
+        --accent: #38bdf8;
+    }
+}

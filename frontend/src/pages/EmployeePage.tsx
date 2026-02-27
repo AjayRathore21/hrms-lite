@@ -8,14 +8,14 @@ import {
   Modal,
   Form,
   Tag,
-  Skeleton,
   Typography,
   Row,
   Col,
   Popconfirm,
   Alert,
-  Empty,
   Tooltip,
+  Space,
+  Avatar,
 } from "antd";
 import {
   PlusOutlined,
@@ -24,14 +24,25 @@ import {
   UserOutlined,
   TeamOutlined,
   ExclamationCircleOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
+import { motion } from "framer-motion";
 import { useEmployeeStore } from "../store/useEmployeeStore";
 import AppLayout from "../layouts/AppLayout";
-import { DEPARTMENTS } from "../services/mockData";
 import type { Employee, NewEmployee } from "../types";
 import toast from "react-hot-toast";
 
-const { Text } = Typography;
+const DEPARTMENTS = [
+  "Engineering",
+  "Design",
+  "Operations",
+  "Human Resources",
+  "Marketing",
+  "Sales",
+  "Product",
+];
+
+const { Text, Title } = Typography;
 
 const EmployeePage: React.FC = () => {
   const {
@@ -50,8 +61,7 @@ const EmployeePage: React.FC = () => {
 
   useEffect(() => {
     fetchEmployees();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchEmployees]);
 
   const filtered = employees.filter((e) => {
     const matchSearch =
@@ -92,42 +102,38 @@ const EmployeePage: React.FC = () => {
       title: "Employee ID",
       dataIndex: "employeeId",
       key: "employeeId",
-      width: 120,
-      render: (id: string) => (
-        <Tag style={{ borderRadius: 6, fontSize: 12, fontFamily: "monospace" }}>
-          {id}
-        </Tag>
-      ),
+      width: 140,
+      render: (id: string) => <span className="employee-id-badge">{id}</span>,
     },
     {
       title: "Full Name",
       dataIndex: "fullName",
       key: "fullName",
       render: (name: string, record: Employee) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Avatar
+            size={40}
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
+              background: "var(--avatar-bg)",
               fontWeight: 700,
-              fontSize: 14,
-              flexShrink: 0,
+              fontSize: 16,
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             }}
           >
             {name.charAt(0)}
-          </div>
+          </Avatar>
           <div>
-            <Text strong>{name}</Text>
-            <br />
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {record.email}
+            <Text strong style={{ fontSize: 14, color: "var(--text-primary)" }}>
+              {name}
             </Text>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <MailOutlined
+                style={{ fontSize: 11, color: "var(--text-secondary)" }}
+              />
+              <Text style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                {record.email}
+              </Text>
+            </div>
           </div>
         </div>
       ),
@@ -136,39 +142,67 @@ const EmployeePage: React.FC = () => {
       title: "Department",
       dataIndex: "department",
       key: "department",
-      render: (dept: string) => (
-        <Tag color="blue" style={{ borderRadius: 12, padding: "2px 10px" }}>
-          {dept}
-        </Tag>
-      ),
+      render: (dept: string) => {
+        const colors: Record<string, string> = {
+          Engineering: "blue",
+          Design: "purple",
+          Operations: "orange",
+          "Human Resources": "magenta",
+          Marketing: "volcano",
+          Sales: "gold",
+          Product: "cyan",
+        };
+        return (
+          <Tag
+            color={colors[dept] || "default"}
+            style={{
+              borderRadius: 12,
+              padding: "2px 12px",
+              border: "none",
+              fontWeight: 600,
+            }}
+          >
+            {dept}
+          </Tag>
+        );
+      },
     },
     {
-      title: "Created At",
+      title: "Joined On",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (date: string) => new Date(date).toLocaleDateString(),
+      render: (date: string) => (
+        <Text style={{ color: "var(--text-secondary)", fontSize: 13 }}>
+          {new Date(date).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </Text>
+      ),
     },
     {
       title: "Action",
       key: "action",
-      width: 80,
+      width: 100,
+      align: "right" as const,
       render: (_: unknown, record: Employee) => (
         <Popconfirm
           title="Delete Employee"
-          description={`Are you sure you want to remove "${record.fullName}"?`}
+          description={`Are you sure you want to remove ${record.fullName}?`}
           onConfirm={() => handleDelete(record.id, record.fullName)}
-          okText="Delete"
-          cancelText="Cancel"
-          okButtonProps={{ danger: true }}
+          okText="Yes, delete"
+          cancelText="No"
+          okButtonProps={{ danger: true, className: "btn" }}
+          cancelButtonProps={{ className: "btn" }}
           icon={<ExclamationCircleOutlined style={{ color: "#dc2626" }} />}
         >
-          <Tooltip title="Delete employee">
+          <Tooltip title="Delete">
             <Button
               danger
               type="text"
               icon={<DeleteOutlined />}
-              size="small"
-              style={{ borderRadius: 6 }}
+              className="action-btn-delete"
             />
           </Tooltip>
         </Popconfirm>
@@ -178,39 +212,56 @@ const EmployeePage: React.FC = () => {
 
   return (
     <AppLayout pageTitle="Employees">
+      <div className="page-header" style={{ marginBottom: 32 }}>
+        <Title level={2} style={{ margin: 0, fontWeight: 800 }}>
+          Workforce Management
+        </Title>
+        <Text type="secondary">
+          View and manage your organization's employees in one place.
+        </Text>
+      </div>
+
       {error && (
-        <Alert
-          type="error"
-          message={error}
-          showIcon
-          style={{ marginBottom: 20, borderRadius: 10 }}
-        />
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+        >
+          <Alert
+            type="error"
+            message={error}
+            showIcon
+            closable
+            style={{ marginBottom: 24, borderRadius: 12 }}
+          />
+        </motion.div>
       )}
 
-      <Card
-        style={{ borderRadius: 16, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}
-        styles={{ body: { padding: 0 } }}
-      >
-        {/* Toolbar */}
-        <div
-          style={{ padding: "20px 24px", borderBottom: "1px solid #f1f5f9" }}
-        >
-          <Row gutter={[16, 12]} align="middle" justify="space-between">
+      <Card className="card card--main" styles={{ body: { padding: 0 } }}>
+        <div className="toolbar">
+          <Row gutter={[16, 12]} align="middle" style={{ width: "100%" }}>
             <Col flex="auto">
               <Row gutter={12}>
-                <Col xs={24} sm={14} md={12}>
+                <Col xs={24} sm={14}>
                   <Input
-                    placeholder="Search by name, email, or ID..."
-                    prefix={<SearchOutlined style={{ color: "#94a3b8" }} />}
+                    size="large"
+                    placeholder="Search employees..."
+                    prefix={
+                      <SearchOutlined
+                        style={{ color: "var(--text-secondary)" }}
+                      />
+                    }
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    style={{ borderRadius: 8 }}
+                    className="form-input"
                     allowClear
                   />
                 </Col>
-                <Col xs={24} sm={10} md={8}>
+                <Col xs={24} sm={10}>
                   <Select
-                    placeholder="Filter by department"
+                    size="large"
+                    placeholder="All Departments"
+                    showSearch
+                    optionFilterProp="label"
                     allowClear
                     style={{ width: "100%" }}
                     value={selectedDept}
@@ -220,19 +271,14 @@ const EmployeePage: React.FC = () => {
                 </Col>
               </Row>
             </Col>
-            <Col>
+            <Col xs={24} sm="auto">
               <Button
+                size="large"
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => setModalOpen(true)}
-                style={{
-                  borderRadius: 8,
-                  background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-                  border: "none",
-                  height: 38,
-                  fontWeight: 600,
-                  paddingInline: 20,
-                }}
+                className="btn btn--primary"
+                style={{ width: "100%" }}
               >
                 Add Employee
               </Button>
@@ -240,90 +286,43 @@ const EmployeePage: React.FC = () => {
           </Row>
         </div>
 
-        {/* Stats */}
-        <div
-          style={{
-            padding: "12px 24px",
-            background: "#f8fafc",
-            borderBottom: "1px solid #f1f5f9",
-            display: "flex",
-            gap: 20,
-          }}
-        >
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            <TeamOutlined style={{ marginRight: 6 }} />
-            Total: <Text strong>{employees.length}</Text>
-          </Text>
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            Showing: <Text strong>{filtered.length}</Text>
-          </Text>
+        <div className="toolbar__stats">
+          <Space size={24}>
+            <div className="stat-mini">
+              <TeamOutlined />
+              <span className="label">Total</span>
+              <span className="value">{employees.length}</span>
+            </div>
+            <div className="stat-mini">
+              <div className="dot" />
+              <span className="label">Filtered</span>
+              <span className="value">{filtered.length}</span>
+            </div>
+          </Space>
         </div>
 
-        {/* Table */}
-        {loading ? (
-          <div style={{ padding: 24 }}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton
-                key={i}
-                active
-                avatar
-                paragraph={{ rows: 1 }}
-                style={{ marginBottom: 20 }}
-              />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={
-              <span>
-                {searchText || selectedDept
-                  ? "No employees match your search."
-                  : "No employees yet. "}
-                {!searchText && !selectedDept && (
-                  <Button
-                    type="link"
-                    onClick={() => setModalOpen(true)}
-                    style={{ padding: 0 }}
-                  >
-                    Add the first employee
-                  </Button>
-                )}
-              </span>
-            }
-            style={{ padding: "48px 0" }}
-          />
-        ) : (
+        <div className="table-container">
           <Table
             dataSource={filtered}
             columns={columns}
             rowKey="id"
+            loading={loading}
             pagination={{
               pageSize: 10,
               showSizeChanger: false,
-              showTotal: (t) => `${t} employees`,
+              position: ["bottomRight"],
+              className: "custom-pagination",
             }}
             scroll={{ x: 800 }}
           />
-        )}
+        </div>
       </Card>
 
-      {/* Add Employee Modal */}
       <Modal
         title={
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <UserOutlined style={{ color: "#fff" }} />
+          <div className="modal-title-custom">
+            <div className="icon-box">
+              <UserOutlined />
             </div>
             <span>Add New Employee</span>
           </div>
@@ -334,56 +333,50 @@ const EmployeePage: React.FC = () => {
           form.resetFields();
         }}
         onOk={handleAdd}
-        okText="Add Employee"
+        width={560}
+        centered
+        className="premium-modal"
+        okText="Create Employee"
+        okButtonProps={{ className: "btn btn--primary" }}
+        cancelButtonProps={{ className: "btn btn--secondary" }}
         confirmLoading={submitting}
-        okButtonProps={{
-          style: {
-            background: "linear-gradient(135deg, #3b82f6, #6366f1)",
-            border: "none",
-            borderRadius: 8,
-            fontWeight: 600,
-          },
-        }}
-        cancelButtonProps={{ style: { borderRadius: 8 } }}
-        width={520}
-        style={{ top: 60 }}
       >
-        <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+        <Form
+          form={form}
+          layout="vertical"
+          className="form premium-form"
+          style={{ marginTop: 24 }}
+        >
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 label="Employee ID"
                 name="employeeId"
                 rules={[
-                  { required: true, message: "Employee ID is required" },
+                  { required: true, message: "Required" },
                   {
                     validator: (_, value) => {
                       if (
                         value &&
                         employees.find((e) => e.employeeId === value)
                       ) {
-                        return Promise.reject(
-                          "This Employee ID already exists",
-                        );
+                        return Promise.reject("Already exists");
                       }
                       return Promise.resolve();
                     },
                   },
                 ]}
               >
-                <Input placeholder="e.g. EMP007" style={{ borderRadius: 8 }} />
+                <Input placeholder="EMP001" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 label="Full Name"
                 name="fullName"
-                rules={[{ required: true, message: "Full name is required" }]}
+                rules={[{ required: true, message: "Required" }]}
               >
-                <Input
-                  placeholder="e.g. John Doe"
-                  style={{ borderRadius: 8 }}
-                />
+                <Input placeholder="John Doe" />
               </Form.Item>
             </Col>
           </Row>
@@ -392,23 +385,22 @@ const EmployeePage: React.FC = () => {
             label="Email Address"
             name="email"
             rules={[
-              { required: true, message: "Email is required" },
-              { type: "email", message: "Please enter a valid email" },
+              { required: true, message: "Required" },
+              { type: "email", message: "Invalid email" },
             ]}
           >
-            <Input
-              placeholder="e.g. john.doe@hrms.com"
-              style={{ borderRadius: 8 }}
-            />
+            <Input placeholder="john@company.com" />
           </Form.Item>
 
           <Form.Item
             label="Department"
             name="department"
-            rules={[{ required: true, message: "Department is required" }]}
+            rules={[{ required: true, message: "Required" }]}
           >
             <Select
               placeholder="Select department"
+              showSearch
+              optionFilterProp="label"
               options={DEPARTMENTS.map((d) => ({ label: d, value: d }))}
             />
           </Form.Item>
