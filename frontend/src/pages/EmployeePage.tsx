@@ -26,11 +26,11 @@ import {
   ExclamationCircleOutlined,
   MailOutlined,
 } from "@ant-design/icons";
-import { motion } from "framer-motion";
 import { useEmployeeStore } from "../store/useEmployeeStore";
 import AppLayout from "../layouts/AppLayout";
 import type { Employee, NewEmployee } from "../types";
 import toast from "react-hot-toast";
+import dayjs from "dayjs";
 
 const DEPARTMENTS = [
   "Engineering",
@@ -173,11 +173,9 @@ const EmployeePage: React.FC = () => {
       key: "createdAt",
       render: (date: string) => (
         <Text style={{ color: "var(--text-secondary)", fontSize: 13 }}>
-          {new Date(date).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
+          {dayjs(date).isValid()
+            ? dayjs(date).format("MMM DD, YYYY")
+            : "Invalid Date"}
         </Text>
       ),
     },
@@ -197,14 +195,12 @@ const EmployeePage: React.FC = () => {
           cancelButtonProps={{ className: "btn" }}
           icon={<ExclamationCircleOutlined style={{ color: "#dc2626" }} />}
         >
-          <Tooltip title="Delete">
-            <Button
-              danger
-              type="text"
-              icon={<DeleteOutlined />}
-              className="action-btn-delete"
-            />
-          </Tooltip>
+          <Button
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            className="action-btn-delete"
+          />
         </Popconfirm>
       ),
     },
@@ -222,10 +218,7 @@ const EmployeePage: React.FC = () => {
       </div>
 
       {error && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-        >
+        <div>
           <Alert
             type="error"
             message={error}
@@ -233,7 +226,7 @@ const EmployeePage: React.FC = () => {
             closable
             style={{ marginBottom: 24, borderRadius: 12 }}
           />
-        </motion.div>
+        </div>
       )}
 
       <Card className="card card--main" styles={{ body: { padding: 0 } }}>
@@ -291,12 +284,12 @@ const EmployeePage: React.FC = () => {
             <div className="stat-mini">
               <TeamOutlined />
               <span className="label">Total</span>
-              <span className="value">{employees.length}</span>
+              <span className="stat-value">{employees.length}</span>
             </div>
             <div className="stat-mini">
               <div className="dot" />
               <span className="label">Filtered</span>
-              <span className="value">{filtered.length}</span>
+              <span className="stat-value">{filtered.length}</span>
             </div>
           </Space>
         </div>
@@ -334,7 +327,6 @@ const EmployeePage: React.FC = () => {
         }}
         onOk={handleAdd}
         width={560}
-        centered
         className="premium-modal"
         okText="Create Employee"
         okButtonProps={{ className: "btn btn--primary" }}

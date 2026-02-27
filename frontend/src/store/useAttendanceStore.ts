@@ -9,6 +9,7 @@ interface AttendanceState {
   todayStats: { present: number; absent: number } | null;
   fetchAttendance: () => Promise<void>;
   addAttendance: (data: NewAttendance) => Promise<void>;
+  updateAttendance: (id: string, data: NewAttendance) => Promise<void>;
   getTodayStats: () => Promise<void>;
 }
 
@@ -34,6 +35,18 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
     try {
       await attendanceService.add(data);
       // Re-fetch all because we need the joined employee details for the new record
+      const updatedData = await attendanceService.getAll();
+      set({ attendanceRecords: updatedData, loading: false });
+    } catch (err) {
+      set({ error: (err as Error).message, loading: false });
+      throw err;
+    }
+  },
+
+  updateAttendance: async (id: string, data: NewAttendance) => {
+    set({ loading: true, error: null });
+    try {
+      await attendanceService.update(id, data);
       const updatedData = await attendanceService.getAll();
       set({ attendanceRecords: updatedData, loading: false });
     } catch (err) {
