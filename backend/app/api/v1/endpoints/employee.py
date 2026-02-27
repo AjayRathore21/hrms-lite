@@ -41,3 +41,4 @@ async def delete_employee(id: str):
         return await db.client.employee.delete(where={"id": id})
     except Exception:
         raise HTTPException(status_code=404, detail="Employee not found")
+    
