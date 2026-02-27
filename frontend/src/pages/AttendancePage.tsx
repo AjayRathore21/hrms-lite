@@ -427,14 +427,20 @@ const AttendancePage: React.FC = () => {
               <div className="icon-badge primary">
                 <CalendarOutlined />
               </div>
-              <div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0px",
+                  lineHeight: 1.1,
+                }}
+              >
                 <Text strong style={{ fontSize: 16 }}>
                   Today's Attendance
                 </Text>
-                <br />
                 <Text
                   type="secondary"
-                  style={{ fontSize: 12, fontWeight: 400 }}
+                  style={{ fontSize: 12, fontWeight: 400, marginTop: 2 }}
                 >
                   {dayjs().format("dddd, MMMM DD, YYYY")}
                 </Text>

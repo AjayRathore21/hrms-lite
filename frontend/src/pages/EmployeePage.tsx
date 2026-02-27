@@ -195,14 +195,12 @@ const EmployeePage: React.FC = () => {
           cancelButtonProps={{ className: "btn" }}
           icon={<ExclamationCircleOutlined style={{ color: "#dc2626" }} />}
         >
-          <Tooltip title="Delete">
-            <Button
-              danger
-              type="text"
-              icon={<DeleteOutlined />}
-              className="action-btn-delete"
-            />
-          </Tooltip>
+          <Button
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            className="action-btn-delete"
+          />
         </Popconfirm>
       ),
     },
