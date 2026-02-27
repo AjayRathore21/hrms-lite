@@ -1,4 +1,35 @@
-node_modules
-venv
+# Common
+node_modules/
+venv/
 .env
-.env.local
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+# Frontend (React/Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.eslintcache
+
+# Backend (FastAPI/Python)
+**/venv/
+**/.env
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/.coverage
+**/htmlcov/
+
+# Prisma
+# Only ignore the sqlite db if you are using it locally, otherwise keep it commented out
+# backend/prisma/*.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
