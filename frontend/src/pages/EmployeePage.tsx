@@ -27,7 +27,6 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 import { useEmployeeStore } from "../store/useEmployeeStore";
-import { useAttendanceStore } from "../store/useAttendanceStore";
 import AppLayout from "../layouts/AppLayout";
 import type { Employee, NewEmployee } from "../types";
 import toast from "react-hot-toast";
@@ -54,19 +53,15 @@ const EmployeePage: React.FC = () => {
     addEmployee,
     deleteEmployee,
   } = useEmployeeStore();
-  const { attendanceRecords, fetchAttendance, addAttendance } =
-    useAttendanceStore();
   const [searchText, setSearchText] = useState("");
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({});
   const [form] = Form.useForm();
 
   useEffect(() => {
     fetchEmployees();
-    fetchAttendance();
-  }, [fetchEmployees, fetchAttendance]);
+  }, [fetchEmployees]);
 
   const filtered = employees.filter((e) => {
     const matchSearch =
@@ -99,25 +94,6 @@ const EmployeePage: React.FC = () => {
       toast.success(`"${name}" removed successfully.`);
     } catch (err: unknown) {
       toast.error((err as Error).message || "Failed to delete employee");
-    }
-  };
-
-  const handleMarkToday = async (
-    employeeId: string,
-    status: "Present" | "Absent",
-  ) => {
-    setRowLoading((prev) => ({ ...prev, [employeeId]: true }));
-    try {
-      await addAttendance({
-        employeeId,
-        date: dayjs().format("YYYY-MM-DD"),
-        status,
-      });
-      toast.success(`Marked as ${status}`);
-    } catch (err: unknown) {
-      toast.error((err as Error).message || "Failed to mark attendance");
-    } finally {
-      setRowLoading((prev) => ({ ...prev, [employeeId]: false }));
     }
   };
 
@@ -202,51 +178,6 @@ const EmployeePage: React.FC = () => {
             : "Invalid Date"}
         </Text>
       ),
-    },
-    {
-      title: "Today's Status",
-      key: "todayAttendance",
-      width: 180,
-      render: (_: unknown, record: Employee) => {
-        const today = dayjs().format("YYYY-MM-DD");
-        const attendance = attendanceRecords.find(
-          (a) => a.employeeId === record.id && a.date === today,
-        );
-
-        if (attendance) {
-          return (
-            <Tag
-              color={attendance.status === "Present" ? "success" : "error"}
-              style={{ borderRadius: 12 }}
-            >
-              {attendance.status.toUpperCase()}
-            </Tag>
-          );
-        }
-
-        return (
-          <Space>
-            <Button
-              size="small"
-              type="primary"
-              ghost
-              onClick={() => handleMarkToday(record.id, "Present")}
-              loading={rowLoading[record.id]}
-            >
-              Present
-            </Button>
-            <Button
-              size="small"
-              danger
-              ghost
-              onClick={() => handleMarkToday(record.id, "Absent")}
-              loading={rowLoading[record.id]}
-            >
-              Absent
-            </Button>
-          </Space>
-        );
-      },
     },
     {
       title: "Action",
