@@ -242,8 +242,24 @@ const AttendancePage: React.FC = () => {
               handleMarkAttendance(record, val as AttendanceStatus)
             }
             options={[
-              { label: "✅ Present", value: "Present" },
-              { label: "❌ Absent", value: "Absent" },
+              {
+                label: (
+                  <Space>
+                    <CheckCircleOutlined style={{ color: "#10b981" }} />
+                    <span>Present</span>
+                  </Space>
+                ),
+                value: "Present",
+              },
+              {
+                label: (
+                  <Space>
+                    <CloseCircleOutlined style={{ color: "#ef4444" }} />
+                    <span>Absent</span>
+                  </Space>
+                ),
+                value: "Absent",
+              },
             ]}
           />
         );
@@ -331,16 +347,32 @@ const AttendancePage: React.FC = () => {
     {
       title: "Action",
       key: "action",
-      width: 100,
+      width: 150,
       render: (_: unknown, record: AttendanceRecord) => (
         <Select
           size="small"
           value={record.status}
-          style={{ width: 90 }}
+          style={{ width: 130 }}
           onChange={() => handleToggleHistory(record)}
           options={[
-            { label: "✅", value: "Present" },
-            { label: "❌", value: "Absent" },
+            {
+              label: (
+                <Space>
+                  <CheckCircleOutlined style={{ color: "#10b981" }} />
+                  <span>Present</span>
+                </Space>
+              ),
+              value: "Present",
+            },
+            {
+              label: (
+                <Space>
+                  <CloseCircleOutlined style={{ color: "#ef4444" }} />
+                  <span>Absent</span>
+                </Space>
+              ),
+              value: "Absent",
+            },
           ]}
         />
       ),
@@ -413,18 +445,36 @@ const AttendancePage: React.FC = () => {
             <Space size={16}>
               <Tag
                 color="success"
-                style={{ borderRadius: 12, fontWeight: 600 }}
+                icon={<CheckCircleOutlined />}
+                style={{
+                  borderRadius: 12,
+                  fontWeight: 600,
+                  padding: "2px 10px",
+                }}
               >
-                ✅ {presentCount} Present
+                {presentCount} Present
               </Tag>
-              <Tag color="error" style={{ borderRadius: 12, fontWeight: 600 }}>
-                ❌ {absentCount} Absent
+              <Tag
+                color="error"
+                icon={<CloseCircleOutlined />}
+                style={{
+                  borderRadius: 12,
+                  fontWeight: 600,
+                  padding: "2px 10px",
+                }}
+              >
+                {absentCount} Absent
               </Tag>
               <Tag
                 color="default"
-                style={{ borderRadius: 12, fontWeight: 600 }}
+                icon={<TeamOutlined />}
+                style={{
+                  borderRadius: 12,
+                  fontWeight: 600,
+                  padding: "2px 10px",
+                }}
               >
-                ⏳ {unmarkedCount} Unmarked
+                {unmarkedCount} Unmarked
               </Tag>
             </Space>
           </div>
@@ -535,21 +585,37 @@ const AttendancePage: React.FC = () => {
               />
               <DatePicker
                 placeholder="By Date"
+                style={{ width: 150 }}
                 onChange={(date) =>
                   setHistoryDate(date ? dayjs(date).format("YYYY-MM-DD") : null)
                 }
-                className="form-input"
               />
               <Select
                 placeholder="By Status"
                 allowClear
-                style={{ width: 110 }}
+                style={{ width: 140 }}
                 onChange={(val) =>
                   setHistoryStatus((val as AttendanceStatus) ?? null)
                 }
                 options={[
-                  { label: "Present", value: "Present" },
-                  { label: "Absent", value: "Absent" },
+                  {
+                    label: (
+                      <Space>
+                        <CheckCircleOutlined style={{ color: "#10b981" }} />
+                        <span>Present</span>
+                      </Space>
+                    ),
+                    value: "Present",
+                  },
+                  {
+                    label: (
+                      <Space>
+                        <CloseCircleOutlined style={{ color: "#ef4444" }} />
+                        <span>Absent</span>
+                      </Space>
+                    ),
+                    value: "Absent",
+                  },
                 ]}
               />
             </Space>

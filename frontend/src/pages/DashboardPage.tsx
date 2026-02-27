@@ -4,8 +4,6 @@ import {
   TeamOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
 } from "@ant-design/icons";
 import { useEmployeeStore } from "../store/useEmployeeStore";
 import { useAttendanceStore } from "../store/useAttendanceStore";
@@ -27,8 +25,6 @@ const DashboardPage: React.FC = () => {
     {
       title: "Total Workforce",
       value: employees.length,
-      trend: "2.4%",
-      trendUp: true,
       icon: <TeamOutlined />,
       iconBg: "linear-gradient(135deg, #0f172a 0%, #334155 100%)",
       color: "#0f172a",
@@ -36,8 +32,6 @@ const DashboardPage: React.FC = () => {
     {
       title: "Active Today",
       value: todayStats?.present ?? 0,
-      trend: "1.2%",
-      trendUp: true,
       icon: <CheckCircleOutlined />,
       iconBg: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
       color: "#7c3aed",
@@ -45,8 +39,6 @@ const DashboardPage: React.FC = () => {
     {
       title: "Offline / Absent",
       value: todayStats?.absent ?? 0,
-      trend: "0.5%",
-      trendUp: false,
       icon: <CloseCircleOutlined />,
       iconBg: "linear-gradient(135deg, #e11d48 0%, #fb7185 100%)",
       color: "#e11d48",
@@ -92,24 +84,6 @@ const DashboardPage: React.FC = () => {
                     <div>
                       <Text className="card__stat-title">{card.title}</Text>
                       <div className="card__stat-value">{card.value}</div>
-                      <div
-                        className={`card__stat-trend ${card.trendUp ? "card__stat-trend--up" : "card__stat-trend--down"}`}
-                      >
-                        {card.trendUp ? (
-                          <ArrowUpOutlined />
-                        ) : (
-                          <ArrowDownOutlined />
-                        )}
-                        <span>{card.trend}</span>
-                        <span
-                          style={{
-                            color: "var(--text-secondary)",
-                            fontWeight: 400,
-                          }}
-                        >
-                          vs last month
-                        </span>
-                      </div>
                     </div>
                     <div
                       className="card__stat-icon"
