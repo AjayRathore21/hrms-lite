@@ -34,6 +34,24 @@ async def mark_attendance(attendance: AttendanceCreate):
         # Handle duplicate for the same day (simplified)
         raise HTTPException(status_code=400, detail="Attendance already marked for this employee on this date")
 
+@router.put("/{attendance_id}", response_model=Attendance)
+async def update_attendance(attendance_id: str, attendance: AttendanceCreate):
+    # Verify record exists first
+    existing = await db.client.attendance.find_unique(where={"id": attendance_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Attendance record not found")
+    
+    try:
+        return await db.client.attendance.update(
+            where={"id": attendance_id},
+            data={
+                "status": attendance.status,
+            }
+        )
+    except Exception as e:
+        print(f"Error updating attendance: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to update attendance: {str(e)}")
+
 @router.get("/employee/{employee_id}", response_model=List[Attendance])
 async def get_employee_attendance(employee_id: str):
     return await db.client.attendance.find_many(

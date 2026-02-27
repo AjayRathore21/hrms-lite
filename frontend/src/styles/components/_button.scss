@@ -3,19 +3,22 @@
 @use "../abstracts/colors" as *;
 
 .btn {
-    border-radius: $border-radius-sm !important;
+    border-radius: 8px !important;
     font-weight: 600 !important;
     @include transition;
     border: none !important;
-    height: 38px !important;
+    height: 40px !important;
     padding: 0 20px !important;
 
     &--primary {
-        background-color: var(--text-primary) !important;
-        color: var(--bg-card) !important;
+        background-color: var(--accent) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3) !important;
 
         &:hover {
-            opacity: 0.8 !important;
+            opacity: 0.9 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4) !important;
         }
     }
 
