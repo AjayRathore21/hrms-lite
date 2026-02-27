@@ -3,13 +3,17 @@
 
 // Global Ant Design Form/Input Overrides
 .ant-input,
-.ant-select-selector {
+.ant-input-affix-wrapper,
+.ant-select,
+.ant-select-selector,
+.ant-select-focused .ant-select-selector {
     background-color: var(--bg-input) !important;
     border-color: var(--border-color) !important;
     color: var(--text-primary) !important;
-    border-radius: $border-radius-sm !important;
-    height: 38px !important; // Match design height
-    padding: 2px 12px !important;
+    border-radius: 8px !important;
+    height: 40px !important; // Standardize on 40px for a more premium "large" feel
+    display: flex !important;
+    align-items: center !important;
     @include transition;
 
     &:hover {
@@ -17,13 +21,38 @@
     }
 }
 
-// Focus states for both Input and Select
+// Fix for Input with icons (Affix Wrapper)
+.ant-input-affix-wrapper {
+    padding: 4px 12px !important;
+
+    .ant-input {
+        background: transparent !important;
+        height: auto !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .ant-input-prefix {
+        margin-right: 8px;
+        color: var(--text-secondary);
+    }
+}
+
+// Ensure Select items and internal padding match Input
+.ant-select-single .ant-select-selector {
+    padding: 0 12px !important;
+}
+
+// Focus states
+.ant-input-affix-wrapper-focused,
 .ant-input-focused,
 .ant-input:focus,
 .ant-select-focused .ant-select-selector {
     border-color: var(--accent) !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
     background-color: var(--bg-card) !important;
+    outline: none !important;
 }
 
 // Form specific layouts
@@ -33,19 +62,12 @@
 
         .ant-form-item-label>label {
             color: var(--text-primary) !important;
-            font-weight: 600 !important; // Bolder labels
+            font-weight: 600 !important;
             font-size: 13px;
         }
     }
 }
 
-// Special handling for the select arrow
 .ant-select-arrow {
     color: var(--text-secondary) !important;
-}
-
-// Ensure Select height is consistent
-.ant-select-single .ant-select-selector {
-    display: flex;
-    align-items: center;
 }

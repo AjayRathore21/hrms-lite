@@ -5,8 +5,16 @@ import { Toaster } from "react-hot-toast";
 import DashboardPage from "./pages/DashboardPage";
 import EmployeePage from "./pages/EmployeePage";
 import AttendancePage from "./pages/AttendancePage";
+import dayjs from "dayjs";
+import weekday from "dayjs/plugin/weekday";
+import localeData from "dayjs/plugin/localeData";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useThemeStore } from "./store/useThemeStore";
 import "./styles/main.scss";
+
+dayjs.extend(weekday);
+dayjs.extend(localeData);
+dayjs.extend(customParseFormat);
 
 /**
  * Root application component.
@@ -29,13 +37,13 @@ const App: React.FC = () => {
           ? antdTheme.darkAlgorithm
           : antdTheme.defaultAlgorithm,
         token: {
-          colorPrimary: isDark ? "#3b82f6" : "#000000",
-          borderRadius: 20,
-          fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-          colorBgLayout: isDark ? "#0f172a" : "#fdfdf4",
+          colorPrimary: "#3b82f6",
+          borderRadius: 8,
+          fontFamily: "'Inter', system-ui, sans-serif",
+          colorBgLayout: isDark ? "#0f172a" : "#f8fafc",
           colorBgContainer: isDark ? "#1e293b" : "#ffffff",
-          colorText: isDark ? "#f8fafc" : "#000000",
-          colorBorder: isDark ? "#334155" : "#f1f5f9",
+          colorText: isDark ? "#f8fafc" : "#0f172a",
+          colorBorder: isDark ? "#334155" : "#cbd5e1",
         },
         components: {
           Layout: {
@@ -51,10 +59,10 @@ const App: React.FC = () => {
             colorBgContainer: isDark ? "#1e293b" : "#ffffff",
           },
           Table: {
-            headerBg: isDark ? "#1e293b" : "#fdfdf4",
-            headerColor: isDark ? "#94a3b8" : "#64748b",
-            rowHoverBg: isDark ? "#334155" : "#f9fbf1",
-            borderColor: isDark ? "#334155" : "#f1f5f9",
+            headerBg: isDark ? "#1e293b" : "#f1f5f9",
+            headerColor: isDark ? "#94a3b8" : "#475569",
+            rowHoverBg: isDark ? "#334155" : "#f8fafc",
+            borderColor: isDark ? "#334155" : "#cbd5e1",
           },
           Button: {
             borderRadius: 8,
@@ -83,9 +91,8 @@ const App: React.FC = () => {
         </Routes>
       </BrowserRouter>
 
-      {/* Global toast notifications */}
       <Toaster
-        position="top-right"
+        position="top-center"
         toastOptions={{
           duration: 3500,
           style: {
@@ -93,8 +100,8 @@ const App: React.FC = () => {
             fontSize: "14px",
             fontWeight: 500,
             background: isDark ? "#1e293b" : "#ffffff",
-            color: isDark ? "#f8fafc" : "#000000",
-            border: `1px solid ${isDark ? "#334155" : "#f1f5f9"}`,
+            color: isDark ? "#f8fafc" : "#0f172a",
+            border: `1px solid ${isDark ? "#334155" : "#cbd5e1"}`,
           },
           success: {
             iconTheme: { primary: "#10b981", secondary: "#fff" },

@@ -28,18 +28,24 @@ import { useEmployeeStore } from "../store/useEmployeeStore";
 import AppLayout from "../layouts/AppLayout";
 import type { AttendanceStatus, AttendanceRecord } from "../types";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
 import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
 
 const AttendancePage: React.FC = () => {
-  const { attendanceRecords, loading, error, fetchAttendance, addAttendance } =
-    useAttendanceStore();
+  const {
+    attendanceRecords,
+    loading,
+    error,
+    fetchAttendance,
+    addAttendance,
+    updateAttendance,
+  } = useAttendanceStore();
   const { employees, fetchEmployees } = useEmployeeStore();
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [filterDate, setFilterDate] = useState<string | null>(null);
+  const [filterEmployee, setFilterEmployee] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<AttendanceStatus | null>(
     null,
   );
@@ -48,6 +54,21 @@ const AttendancePage: React.FC = () => {
     fetchAttendance();
     fetchEmployees();
   }, [fetchAttendance, fetchEmployees]);
+
+  const handleToggleStatus = async (record: AttendanceRecord) => {
+    const newStatus: AttendanceStatus =
+      record.status === "Present" ? "Absent" : "Present";
+    try {
+      await updateAttendance(record.id, {
+        employeeId: record.employeeId,
+        date: record.date,
+        status: newStatus,
+      });
+      toast.success(`Updated to ${newStatus}`);
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Failed to update attendance");
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -71,7 +92,10 @@ const AttendancePage: React.FC = () => {
   const filtered = attendanceRecords.filter((r) => {
     const matchDate = filterDate ? r.date === filterDate : true;
     const matchStatus = filterStatus ? r.status === filterStatus : true;
-    return matchDate && matchStatus;
+    const matchEmployee = filterEmployee
+      ? r.employeeId === filterEmployee
+      : true;
+    return matchDate && matchStatus && matchEmployee;
   });
 
   const sorted = [...filtered].sort((a, b) => b.date.localeCompare(a.date));
@@ -116,7 +140,9 @@ const AttendancePage: React.FC = () => {
             style={{ color: "var(--text-secondary)", fontSize: 13 }}
           />
           <Text style={{ color: "var(--text-primary)", fontSize: 13 }}>
-            {format(new Date(date + "T00:00:00"), "MMMM dd, yyyy")}
+            {dayjs(date).isValid()
+              ? dayjs(date).format("MMMM DD, YYYY")
+              : "Invalid Date"}
           </Text>
         </div>
       ),
@@ -147,6 +173,21 @@ const AttendancePage: React.FC = () => {
         >
           {status}
         </Tag>
+      ),
+    },
+    {
+      title: "Action",
+      key: "update",
+      width: 100,
+      render: (_: unknown, record: AttendanceRecord) => (
+        <Button
+          size="small"
+          type="link"
+          onClick={() => handleToggleStatus(record)}
+          style={{ fontSize: 12, fontWeight: 600 }}
+        >
+          TOGGLE
+        </Button>
       ),
     },
   ];
@@ -295,9 +336,21 @@ const AttendancePage: React.FC = () => {
                     Attendance History
                   </Text>
                 </div>
-                <Space>
+                <Space wrap>
+                  <Select
+                    placeholder="By Employee"
+                    allowClear
+                    showSearch
+                    optionFilterProp="label"
+                    style={{ width: 160 }}
+                    onChange={(val) => setFilterEmployee(val ?? null)}
+                    options={employees.map((e) => ({
+                      label: e.fullName,
+                      value: e.id,
+                    }))}
+                  />
                   <DatePicker
-                    placeholder="Filter by date"
+                    placeholder="By Date"
                     onChange={(date) =>
                       setFilterDate(
                         date ? dayjs(date).format("YYYY-MM-DD") : null,
@@ -306,9 +359,9 @@ const AttendancePage: React.FC = () => {
                     className="form-input"
                   />
                   <Select
-                    placeholder="All Status"
+                    placeholder="By Status"
                     allowClear
-                    style={{ width: 130 }}
+                    style={{ width: 110 }}
                     onChange={(val) =>
                       setFilterStatus((val as AttendanceStatus) ?? null)
                     }

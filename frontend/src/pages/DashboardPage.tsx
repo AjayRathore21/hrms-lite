@@ -7,7 +7,6 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
 } from "@ant-design/icons";
-import { motion } from "framer-motion";
 import { useEmployeeStore } from "../store/useEmployeeStore";
 import { useAttendanceStore } from "../store/useAttendanceStore";
 import AppLayout from "../layouts/AppLayout";
@@ -54,21 +53,6 @@ const DashboardPage: React.FC = () => {
     },
   ];
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-  };
-
   return (
     <AppLayout>
       <div className="analytics-header" style={{ marginBottom: 48 }}>
@@ -88,11 +72,11 @@ const DashboardPage: React.FC = () => {
         </Text>
       </div>
 
-      <motion.div variants={container} initial="hidden" animate="show">
+      <div>
         <Row gutter={[24, 24]} style={{ marginBottom: 48 }}>
           {statCards.map((card, idx) => (
             <Col xs={24} md={8} key={idx}>
-              <motion.div variants={item}>
+              <div>
                 <Card
                   bordered={false}
                   className="card card--hoverable"
@@ -139,11 +123,11 @@ const DashboardPage: React.FC = () => {
                     </div>
                   </div>
                 </Card>
-              </motion.div>
+              </div>
             </Col>
           ))}
         </Row>
-      </motion.div>
+      </div>
 
       <Row gutter={24}>
         <Col span={24}>

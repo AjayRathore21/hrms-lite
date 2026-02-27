@@ -87,4 +87,19 @@ export const attendanceService = {
       absent: todayRecords.filter((a) => a.status === "Absent").length,
     };
   },
+
+  /** Update an attendance record */
+  update: async (id: string, data: NewAttendance): Promise<Attendance> => {
+    try {
+      const response = await apiClient.put<Attendance>(
+        `/attendance/${id}`,
+        data,
+      );
+      return response.data;
+    } catch (error: any) {
+      const message =
+        error.response?.data?.detail || "Failed to update attendance";
+      throw new Error(message);
+    }
+  },
 };

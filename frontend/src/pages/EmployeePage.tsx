@@ -26,11 +26,12 @@ import {
   ExclamationCircleOutlined,
   MailOutlined,
 } from "@ant-design/icons";
-import { motion } from "framer-motion";
 import { useEmployeeStore } from "../store/useEmployeeStore";
+import { useAttendanceStore } from "../store/useAttendanceStore";
 import AppLayout from "../layouts/AppLayout";
 import type { Employee, NewEmployee } from "../types";
 import toast from "react-hot-toast";
+import dayjs from "dayjs";
 
 const DEPARTMENTS = [
   "Engineering",
@@ -53,15 +54,19 @@ const EmployeePage: React.FC = () => {
     addEmployee,
     deleteEmployee,
   } = useEmployeeStore();
+  const { attendanceRecords, fetchAttendance, addAttendance } =
+    useAttendanceStore();
   const [searchText, setSearchText] = useState("");
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({});
   const [form] = Form.useForm();
 
   useEffect(() => {
     fetchEmployees();
-  }, [fetchEmployees]);
+    fetchAttendance();
+  }, [fetchEmployees, fetchAttendance]);
 
   const filtered = employees.filter((e) => {
     const matchSearch =
@@ -94,6 +99,25 @@ const EmployeePage: React.FC = () => {
       toast.success(`"${name}" removed successfully.`);
     } catch (err: unknown) {
       toast.error((err as Error).message || "Failed to delete employee");
+    }
+  };
+
+  const handleMarkToday = async (
+    employeeId: string,
+    status: "Present" | "Absent",
+  ) => {
+    setRowLoading((prev) => ({ ...prev, [employeeId]: true }));
+    try {
+      await addAttendance({
+        employeeId,
+        date: dayjs().format("YYYY-MM-DD"),
+        status,
+      });
+      toast.success(`Marked as ${status}`);
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Failed to mark attendance");
+    } finally {
+      setRowLoading((prev) => ({ ...prev, [employeeId]: false }));
     }
   };
 
@@ -173,13 +197,56 @@ const EmployeePage: React.FC = () => {
       key: "createdAt",
       render: (date: string) => (
         <Text style={{ color: "var(--text-secondary)", fontSize: 13 }}>
-          {new Date(date).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
+          {dayjs(date).isValid()
+            ? dayjs(date).format("MMM DD, YYYY")
+            : "Invalid Date"}
         </Text>
       ),
+    },
+    {
+      title: "Today's Status",
+      key: "todayAttendance",
+      width: 180,
+      render: (_: unknown, record: Employee) => {
+        const today = dayjs().format("YYYY-MM-DD");
+        const attendance = attendanceRecords.find(
+          (a) => a.employeeId === record.id && a.date === today,
+        );
+
+        if (attendance) {
+          return (
+            <Tag
+              color={attendance.status === "Present" ? "success" : "error"}
+              style={{ borderRadius: 12 }}
+            >
+              {attendance.status.toUpperCase()}
+            </Tag>
+          );
+        }
+
+        return (
+          <Space>
+            <Button
+              size="small"
+              type="primary"
+              ghost
+              onClick={() => handleMarkToday(record.id, "Present")}
+              loading={rowLoading[record.id]}
+            >
+              Present
+            </Button>
+            <Button
+              size="small"
+              danger
+              ghost
+              onClick={() => handleMarkToday(record.id, "Absent")}
+              loading={rowLoading[record.id]}
+            >
+              Absent
+            </Button>
+          </Space>
+        );
+      },
     },
     {
       title: "Action",
@@ -222,10 +289,7 @@ const EmployeePage: React.FC = () => {
       </div>
 
       {error && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-        >
+        <div>
           <Alert
             type="error"
             message={error}
@@ -233,7 +297,7 @@ const EmployeePage: React.FC = () => {
             closable
             style={{ marginBottom: 24, borderRadius: 12 }}
           />
-        </motion.div>
+        </div>
       )}
 
       <Card className="card card--main" styles={{ body: { padding: 0 } }}>
@@ -291,12 +355,12 @@ const EmployeePage: React.FC = () => {
             <div className="stat-mini">
               <TeamOutlined />
               <span className="label">Total</span>
-              <span className="value">{employees.length}</span>
+              <span className="stat-value">{employees.length}</span>
             </div>
             <div className="stat-mini">
               <div className="dot" />
               <span className="label">Filtered</span>
-              <span className="value">{filtered.length}</span>
+              <span className="stat-value">{filtered.length}</span>
             </div>
           </Space>
         </div>
@@ -334,7 +398,6 @@ const EmployeePage: React.FC = () => {
         }}
         onOk={handleAdd}
         width={560}
-        centered
         className="premium-modal"
         okText="Create Employee"
         okButtonProps={{ className: "btn btn--primary" }}
