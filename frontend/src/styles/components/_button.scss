@@ -1,0 +1,31 @@
+@use "../abstracts/spacing" as *;
+@use "../abstracts/mixins" as *;
+@use "../abstracts/colors" as *;
+
+.btn {
+    border-radius: $border-radius-sm !important;
+    font-weight: 600 !important;
+    @include transition;
+    border: none !important;
+    height: 38px !important;
+    padding: 0 20px !important;
+
+    &--primary {
+        background-color: var(--text-primary) !important;
+        color: var(--bg-card) !important;
+
+        &:hover {
+            opacity: 0.8 !important;
+        }
+    }
+
+    &--secondary {
+        background-color: var(--pill-bg) !important;
+        color: var(--pill-text) !important;
+
+        &:hover {
+            background-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+    }
+}

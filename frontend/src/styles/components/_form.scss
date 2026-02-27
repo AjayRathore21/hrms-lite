@@ -1,0 +1,51 @@
+@use "../abstracts/spacing" as *;
+@use "../abstracts/mixins" as *;
+
+// Global Ant Design Form/Input Overrides
+.ant-input,
+.ant-select-selector {
+    background-color: var(--bg-input) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: $border-radius-sm !important;
+    height: 38px !important; // Match design height
+    padding: 2px 12px !important;
+    @include transition;
+
+    &:hover {
+        border-color: var(--accent) !important;
+    }
+}
+
+// Focus states for both Input and Select
+.ant-input-focused,
+.ant-input:focus,
+.ant-select-focused .ant-select-selector {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+    background-color: var(--bg-card) !important;
+}
+
+// Form specific layouts
+.form {
+    &-item {
+        margin-bottom: $spacing-lg;
+
+        .ant-form-item-label>label {
+            color: var(--text-primary) !important;
+            font-weight: 600 !important; // Bolder labels
+            font-size: 13px;
+        }
+    }
+}
+
+// Special handling for the select arrow
+.ant-select-arrow {
+    color: var(--text-secondary) !important;
+}
+
+// Ensure Select height is consistent
+.ant-select-single .ant-select-selector {
+    display: flex;
+    align-items: center;
+}
