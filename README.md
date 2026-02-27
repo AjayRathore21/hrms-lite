@@ -52,10 +52,21 @@ A modern, lightweight Human Resource Management System (HRMS) built for efficien
    python -m venv venv
    source venv/bin/activate  # Windows: venv\Scripts\activate
    pip install -r requirements.txt
-   # Setup .env with DATABASE_URL
+   # Setup .env with DATABASE_URL (See Note Below)
    prisma generate
    uvicorn app.main:app --reload
    ```
+
+   > **⚠️ Note for Developers in India**:
+   > Some Indian ISPs currently block direct access to Supabase. If you face connection issues (`P1001`), try switching between the **Direct** and **Pooler** URLs in your `.env` file or use a VPN.
+
+   **Database URLs for Local Testing:**
+   - **Direct Connection (Default)**:
+     `DATABASE_URL=postgresql://postgres:wP2VMTrlhsQ9kvnj@db.tcialorjntdxqyltneol.supabase.co:5432/postgres`
+   - **Connection Pooler (Backup)**:
+     `DATABASE_URL=postgresql://postgres.tcialorjntdxqyltneol:wP2VMTrlhsQ9kvnj@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true`
+
+   > **📢 Important Security Note**: The credentials above are provided strictly for evaluation and testing. This database and project will be deleted immediately following the evaluation period.
 
 3. **Frontend Setup**
    ```bash
